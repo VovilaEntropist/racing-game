@@ -61,10 +61,9 @@ public class RoadTraffic {
 				int lane = availableLanes.get(laneIndex);
 				availableLanes.remove(laneIndex);
 
-				Direction direction;
-
 				int offset = random.nextInt(settings.getInt("road-traffic.max-offset"));
 
+				Direction direction;
 				int velocityModifier;
 
 				if (lane < road.getLaneCount() / 2) {
@@ -75,17 +74,18 @@ public class RoadTraffic {
 					velocityModifier = -1;
 				}
 
-				utils.Vector vel = new Vector(0, settings.getInt("player.velocity")
-						+ velocityModifier * (random.nextInt(settings.getInt("car.max-velocity")
-						- settings.getInt("car.min-velocity")) + settings.getInt("car.min-velocity")));
-
 				int carWidth = settings.getInt("car.width");
 				int carHeight = settings.getInt("car.height");
-				int roadLaneWidht = settings.getInt("road.lane-width");
+				int roadLaneWidth = settings.getInt("road.lane-width");
 
-				GameEntity entity = new Car(new PhysicalBody(new Rectangle(lane * roadLaneWidht +
-						(roadLaneWidht - carWidth) / 2, -carHeight - offset, carWidth, carHeight),
+				GameEntity entity = new Car(new PhysicalBody(new Rectangle(lane * roadLaneWidth +
+						(roadLaneWidth - carWidth) / 2, -carHeight - offset, carWidth, carHeight),
 						direction), listeners);
+
+				Vector vel = new Vector(0, velocityModifier * (random.nextInt(settings.getInt("car.max-velocity")
+						- settings.getInt("car.min-velocity")) + settings.getInt("car.min-velocity"))
+						+ settings.getInt("player.velocity"));
+
 				entity.setVelocity(vel);
 				entities.add(entity);
 			}
