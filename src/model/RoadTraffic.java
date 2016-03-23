@@ -12,13 +12,15 @@ public class RoadTraffic {
 	private Road road;
 	private Set<GameEntity> entities;
 	private ListenersList listeners;
+	private CollisionManager collisionManager;
 
 	private int generationInterval;
 	private List<Integer> availableLanes = new ArrayList<Integer>();
 
-	public RoadTraffic(Road road, Set<GameEntity> entities, ListenersList listeners) {
+	public RoadTraffic(Road road, Set<GameEntity> entities, CollisionManager collisionManager, ListenersList listeners) {
 		this.road = road;
 		this.entities = entities;
+		this.collisionManager = collisionManager;
 		this.listeners = listeners;
 
 		generationInterval = 0;
@@ -30,10 +32,10 @@ public class RoadTraffic {
 			lastGenerationY = Collections.min(entities, new Comparator<GameEntity>() {
 				@Override
 				public int compare(GameEntity o1, GameEntity o2) {
-					return o1.getBody().getRectangle().y -
-							o2.getBody().getRectangle().y;
+					return o1.getObjectData().getRectangle().y -
+							o2.getObjectData().getRectangle().y;
 				}
-			}).getBody().getRectangle().y;
+			}).getObjectData().getRectangle().y;
 		} catch (NoSuchElementException e) {
 			lastGenerationY = generationInterval;
 		}
@@ -78,7 +80,7 @@ public class RoadTraffic {
 				int carHeight = settings.getInt("car.height");
 				int roadLaneWidth = settings.getInt("road.lane-width");
 
-				GameEntity entity = new Car(new PhysicalBody(new Rectangle(lane * roadLaneWidth +
+				GameEntity entity = new Car(new ObjectData(new Rectangle(lane * roadLaneWidth +
 						(roadLaneWidth - carWidth) / 2, -carHeight - offset, carWidth, carHeight),
 						direction), listeners);
 
@@ -88,6 +90,7 @@ public class RoadTraffic {
 
 				entity.setVelocity(vel);
 				entities.add(entity);
+				collisionManager.add(entity);
 			}
 
 			int maxGenerationInterval = settings.getInt("road-traffic.max-generation-interval");
@@ -110,7 +113,7 @@ public class RoadTraffic {
 	}
 
 	private boolean disappeared(GameEntity entity) {
-		return entity.getBody().getRectangle().y >
+		return entity.getObjectData().getRectangle().y >
 				road.getBody().getRectangle().height;
 	}
 

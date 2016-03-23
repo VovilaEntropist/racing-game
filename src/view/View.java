@@ -81,12 +81,12 @@ public class View extends JFrame implements Listener {
 
 		if (senderType == SenderType.CAR && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getBody(), carImageRandom.getRandomImage());
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(), carImageRandom.getRandomImage());
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
 		} else if (senderType == SenderType.PLAYER && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getBody(),
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(),
 					ImageLoader.load(new File("src/resources/player.png")));
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);

@@ -8,21 +8,21 @@ import model.listener.SenderType;
 public class Road {
 	private ListenersList listeners;
 
-	private PhysicalBody body;
+	private ObjectData body;
 	private int laneCount;
 
-	public Road(PhysicalBody body, int laneCount, ListenersList listeners) {
+	public Road(ObjectData body, int laneCount, ListenersList listeners) {
 		this.listeners = listeners;
 		this.laneCount = laneCount;
 
 		setBody(body);
 	}
 
-	public PhysicalBody getBody() {
+	public ObjectData getBody() {
 		return body;
 	}
 
-	public void setBody(PhysicalBody body) {
+	public void setBody(ObjectData body) {
 		this.body = body;
 
 		listeners.notify(new EventData(SenderType.ROAD, EventType.INITIALIZE, this));

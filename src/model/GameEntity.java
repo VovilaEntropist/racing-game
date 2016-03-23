@@ -3,26 +3,30 @@ package model;
 import model.listener.*;
 import utils.Vector;
 
-public abstract class GameEntity {
+public abstract class GameEntity extends Colliding {
 
-	protected PhysicalBody body;
+	protected ObjectData objectData;
 	protected Vector velocity = new Vector();
 
 	private ListenersList listeners;
 	private ListenersList privateListeners = new ListenersList();
 
-	public GameEntity(PhysicalBody body, ListenersList listeners) {
+	public GameEntity(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners) {
+		super(collisionBody);
 		this.listeners = listeners;
-
-		setBody(body);
+		setObjectData(objectData);
 	}
 
-	public PhysicalBody getBody() {
-		return body;
+	public GameEntity(ObjectData objectData, ListenersList listeners) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners);
 	}
 
-	public void setBody(PhysicalBody body) {
-		this.body = body;
+	public ObjectData getObjectData() {
+		return objectData;
+	}
+
+	public void setObjectData(ObjectData objectData) {
+		this.objectData = objectData;
 
 		notifyListeners(new EventData(getSenderType(), EventType.INITIALIZE, this));
 	}
@@ -44,7 +48,7 @@ public abstract class GameEntity {
 	public void move(double time) {
 		doMovementAction(time);
 
-		notifyListeners(new EventData(getSenderType(), EventType.MOVE, body));
+		notifyListeners(new EventData(getSenderType(), EventType.MOVE, objectData));
 	}
 
 	public abstract SenderType getSenderType();
@@ -67,17 +71,24 @@ public abstract class GameEntity {
 		notifyListeners(new EventData(getSenderType(), EventType.DISAPPEARANCE));
 	}
 
-	protected abstract boolean doCheckCollision(GameEntity anotherGameEntity);
+//	protected abstract boolean doCheckCollision(GameEntity anotherGameEntity);
+//
+//	protected abstract void doCollisionAction(GameEntity anotherGameEntity);
+//
+//	public boolean collide(GameEntity anotherGameEntity) {
+//		boolean result = doCheckCollision(anotherGameEntity);
+//
+//		if (result) {
+//			doCollisionAction(anotherGameEntity);
+//		}
+//
+//		return result;
+//	}
 
-	protected abstract void doCollisionAction(GameEntity anotherGameEntity);
+	@Override
+	public boolean collidesWith(Colliding other) {
+		return collisionBody.getRectangle().intersects(other.getCollisionBody().getRectangle());
 
-	public boolean collide(GameEntity anotherGameEntity) {
-		boolean result = doCheckCollision(anotherGameEntity);
-
-		if (result) {
-			doCollisionAction(anotherGameEntity);
-		}
-
-		return result;
 	}
+
 }

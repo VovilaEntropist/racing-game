@@ -5,14 +5,14 @@ import model.listener.SenderType;
 
 class Car extends GameEntity {
 
-	Car(PhysicalBody body, ListenersList listeners) {
+	Car(ObjectData body, ListenersList listeners) {
 		super(body, listeners);
 	}
 
 	@Override
 	protected void doMovementAction(double time) {
-		body.getRectangle().x += (int) (getVelocity().x * time);
-		body.getRectangle().y += (int) (getVelocity().y * time);
+		objectData.getRectangle().x += (int) (getVelocity().x * time);
+		objectData.getRectangle().y += (int) (getVelocity().y * time);
 	}
 
 	@Override
@@ -20,13 +20,4 @@ class Car extends GameEntity {
 		return SenderType.CAR;
 	}
 
-	@Override
-	protected boolean doCheckCollision(GameEntity anotherGameEntity) {
-		return this.getBody().getRectangle().intersects(anotherGameEntity.getBody().getRectangle());
-	}
-
-	@Override
-	protected void doCollisionAction(GameEntity anotherGameEntity) {
-
-	}
 }

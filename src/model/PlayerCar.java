@@ -5,7 +5,7 @@ import model.listener.SenderType;
 
 public class PlayerCar extends Car {
 
-	public PlayerCar(PhysicalBody body, ListenersList listeners) {
+	public PlayerCar(ObjectData body, ListenersList listeners) {
 		super(body, listeners);
 	}
 

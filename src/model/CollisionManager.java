@@ -1,31 +1,38 @@
 package model;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 public class CollisionManager {
 
-	public Set<GameEntity> entities;
-	public GameEntity player;
+	public Set<Colliding> entities = new HashSet<Colliding>();
 
-	public CollisionManager(Set<GameEntity> entities, GameEntity player) {
-		this.entities = entities;
-		this.player = player;
+	public CollisionManager() {
+
 	}
 
-	public boolean checkCollision() {
-		Iterator<GameEntity> iterator = entities.iterator();
-		while(iterator.hasNext()) {
-			GameEntity entity = iterator.next();
+	public boolean add(Colliding colliding) {
+		return entities.add(colliding);
+	}
 
-			if (entity.collide(player)) {
-				entity.disappear();
-				iterator.remove();
+	public boolean remove(Object o) {
+		return entities.remove(o);
+	}
+
+	public boolean checkCollision(Colliding entity) {
+		Iterator<Colliding> iterator = entities.iterator();
+		while(iterator.hasNext()) {
+			Colliding anotherEntity = iterator.next();
+
+			if (entity.collidesWith(anotherEntity) && entity != anotherEntity) {
 				return true;
 			}
 		}
 
 		return false;
 	}
+
+
 
 }
