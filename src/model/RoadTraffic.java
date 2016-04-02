@@ -10,43 +10,58 @@ import java.util.List;
 
 public class RoadTraffic {
 	private Road road;
-	private GameEntityList entities;
+	//private GameEntityList entities;
 	private ListenersList listeners;
 	private CollisionManager collisionManager;
 
 	private int generationInterval;
 	private List<Integer> availableLanes = new ArrayList<Integer>();
 
-	public RoadTraffic(Road road, GameEntityList entities, CollisionManager collisionManager, ListenersList listeners) {
+	private long lastGenerationTime;
+
+//	public RoadTraffic(Road road, GameEntityList entities, CollisionManager collisionManager, ListenersList listeners) {
+//		this.road = road;
+//		this.entities = entities;
+//		this.collisionManager = collisionManager;
+//		this.listeners = listeners;
+//
+//		generationInterval = 0;
+//	}
+
+	public RoadTraffic(Road road, CollisionManager collisionManager, ListenersList listeners) {
 		this.road = road;
-		this.entities = entities;
 		this.collisionManager = collisionManager;
 		this.listeners = listeners;
 
+		lastGenerationTime = System.currentTimeMillis();
 		generationInterval = 0;
 	}
 
-	private int countLastGenerationY() {
-		int lastGenerationY = 0;
-		try {
-			lastGenerationY = Collections.min(entities.getSet(), new Comparator<GameEntity>() {
-				@Override
-				public int compare(GameEntity o1, GameEntity o2) {
-					return o1.getObjectData().getRectangle().y -
-							o2.getObjectData().getRectangle().y;
-				}
-			}).getObjectData().getRectangle().y;
-		} catch (NoSuchElementException e) {
-			lastGenerationY = generationInterval;
-		}
-
-		return lastGenerationY;
-	}
+//	private int countLastGenerationY() {
+//		int lastGenerationY = 0;
+//		try {
+//			lastGenerationY = Collections.min(entities.getSet(), new Comparator<GameEntity>() {
+//				@Override
+//				public int compare(GameEntity o1, GameEntity o2) {
+//					return o1.getObjectData().getRectangle().y -
+//							o2.getObjectData().getRectangle().y;
+//				}
+//			}).getObjectData().getRectangle().y;
+//		} catch (NoSuchElementException e) {
+//			lastGenerationY = generationInterval;
+//		}
+//
+//		return lastGenerationY;
+//	}
 
 	public void generate() {
-		int lastGenerationY = countLastGenerationY();
+		//int lastGenerationY = countLastGenerationY();
 
-		if (lastGenerationY >= generationInterval) {
+		final long currentTime = System.currentTimeMillis();
+
+		if (currentTime - lastGenerationTime >= generationInterval) {
+			lastGenerationTime = currentTime;
+
 			Random random = new Random();
 			Settings settings = Settings.getInstance();
 
@@ -90,7 +105,7 @@ public class RoadTraffic {
 						+ settings.getInt("player.velocity"));
 
 				entity.setVelocity(vel);
-				entities.add(entity);
+				//entities.add(entity);
 
 				new GameLoop(new GameEntityHandler(entity, listeners, collisionManager)).start();
 			}
@@ -102,42 +117,42 @@ public class RoadTraffic {
 		}
 	}
 
-	public void remove() {
-		Iterator<GameEntity> iterator = entities.getSet().iterator();
-		while(iterator.hasNext()) {
-			GameEntity entity = iterator.next();
+//	public void remove() {
+//		Iterator<GameEntity> iterator = entities.getSet().iterator();
+//		while(iterator.hasNext()) {
+//			GameEntity entity = iterator.next();
+//
+//			if (disappeared(entity)) {
+//				entity.disappear();
+//				collisionManager.remove(entity);
+//				iterator.remove();
+//			}
+//		}
+//	}
 
-			if (disappeared(entity)) {
-				entity.disappear();
-				collisionManager.remove(entity);
-				iterator.remove();
-			}
-		}
-	}
+//	private boolean disappeared(GameEntity entity) {
+//		return entity.getObjectData().getRectangle().y >
+//				road.getBody().getRectangle().height;
+//	}
 
-	private boolean disappeared(GameEntity entity) {
-		return entity.getObjectData().getRectangle().y >
-				road.getBody().getRectangle().height;
-	}
+//	public void moveAll(double time) {
+//		for (GameEntity entity : entities.getSet()) {
+//			entity.move(time);
+//		}
+//	}
 
-	public void moveAll(double time) {
-		for (GameEntity entity : entities.getSet()) {
-			entity.move(time);
-		}
-	}
-
-	public void checkCollisionAll() {
-		Iterator<GameEntity> iterator = entities.getSet().iterator();
-		while(iterator.hasNext()) {
-			GameEntity entity = iterator.next();
-
-			Colliding colliding = entity.collides();
-			if (colliding != null) {
-				entity.respondToCollision(colliding);
-				entity.disappear();
-				collisionManager.remove(entity);
-				iterator.remove();
-			}
-		}
-	}
+//	public void checkCollisionAll() {
+//		Iterator<GameEntity> iterator = entities.getSet().iterator();
+//		while(iterator.hasNext()) {
+//			GameEntity entity = iterator.next();
+//
+//			Colliding colliding = entity.collides();
+//			if (colliding != null) {
+//				entity.respondToCollision(colliding);
+//				entity.disappear();
+//				collisionManager.remove(entity);
+//				iterator.remove();
+//			}
+//		}
+//	}
 }

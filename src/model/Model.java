@@ -21,7 +21,7 @@ public class Model implements Consumer<Double> {
 
 	private RoadTraffic roadTraffic;
 	private Road road;
-	private GameEntityList entities;
+	//private GameEntityList entities;
 
 	private Settings settings;
 
@@ -46,11 +46,12 @@ public class Model implements Consumer<Double> {
 		final int roadHeight = settings.getInt("road.height");
 		final int playerBoundsHeight = settings.getInt("player-bounds.height");
 
-		entities = new GameEntityList();
+		//entities = new GameEntityList();
 		collisionManager = new CollisionManager();
 		road = new Road(new ObjectData(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
 				settings.getInt("road.lane-count"), listeners);
-		roadTraffic = new RoadTraffic(road, entities, collisionManager, listeners);
+		//roadTraffic = new RoadTraffic(road, entities, collisionManager, listeners);
+		roadTraffic = new RoadTraffic(road, collisionManager, listeners);
 		player = new PlayerCar(new ObjectData(new Point(125, 400), new Dimension(50, 100)), collisionManager, listeners);
 		collisionManager.add(player);
 		playerBounds = new Rectangle(0, roadHeight - playerBoundsHeight, roadWidth, playerBoundsHeight);
