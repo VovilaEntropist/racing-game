@@ -11,14 +11,17 @@ public abstract class GameEntity extends Colliding {
 	private ListenersList listeners;
 	private ListenersList privateListeners = new ListenersList();
 
-	public GameEntity(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners) {
+	private CollisionManager collisionManager;
+
+	public GameEntity(ObjectData objectData, CollisionBody collisionBody, CollisionManager collisionManager, ListenersList listeners) {
 		super(collisionBody);
 		this.listeners = listeners;
+		this.collisionManager = collisionManager;
 		setObjectData(objectData);
 	}
 
-	public GameEntity(ObjectData objectData, ListenersList listeners) {
-		this(objectData, new CollisionBody(objectData.getRectangle()), listeners);
+	public GameEntity(ObjectData objectData, CollisionManager collisionManager, ListenersList listeners) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), collisionManager, listeners);
 	}
 
 	public ObjectData getObjectData() {
@@ -53,7 +56,7 @@ public abstract class GameEntity extends Colliding {
 
 	public abstract SenderType getSenderType();
 
-	private void notifyListeners(EventData eventData) {
+	protected void notifyListeners(EventData eventData) {
 		try {
 			listeners.notify(eventData);
 		} catch (NullPointerException e) {
@@ -71,24 +74,20 @@ public abstract class GameEntity extends Colliding {
 		notifyListeners(new EventData(getSenderType(), EventType.DISAPPEARANCE));
 	}
 
-//	protected abstract boolean doCheckCollision(GameEntity anotherGameEntity);
-//
-//	protected abstract void doCollisionAction(GameEntity anotherGameEntity);
-//
-//	public boolean collide(GameEntity anotherGameEntity) {
-//		boolean result = doCheckCollision(anotherGameEntity);
-//
-//		if (result) {
-//			doCollisionAction(anotherGameEntity);
-//		}
-//
-//		return result;
-//	}
+	public Colliding collides() {
+		return collisionManager.checkCollisionFor(this);
+	}
 
 	@Override
 	public boolean collidesWith(Colliding other) {
 		return collisionBody.getRectangle().intersects(other.getCollisionBody().getRectangle());
-
 	}
+
+	@Override
+	public void respondToCollision(Colliding other) {
+		doCollisionResponse(other);
+	}
+
+	protected abstract void doCollisionResponse(Colliding colliding);
 
 }

@@ -16,5 +16,7 @@ public abstract class Colliding {
 		this.collisionBody = collisionBody;
 	}
 
-	public abstract boolean collidesWith(Colliding anotherEntity);
+	public abstract boolean collidesWith(Colliding other);
+
+	public abstract void respondToCollision(Colliding other);
 }

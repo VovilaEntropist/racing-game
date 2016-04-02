@@ -6,10 +6,10 @@ import java.util.Set;
 
 public class CollisionManager {
 
-	public Set<Colliding> entities = new HashSet<Colliding>();
+	private Set<Colliding> entities;
 
 	public CollisionManager() {
-
+		entities = new HashSet<Colliding>();
 	}
 
 	public boolean add(Colliding colliding) {
@@ -20,17 +20,17 @@ public class CollisionManager {
 		return entities.remove(o);
 	}
 
-	public boolean checkCollision(Colliding entity) {
+	public Colliding checkCollisionFor(Colliding entity) {
 		Iterator<Colliding> iterator = entities.iterator();
 		while(iterator.hasNext()) {
 			Colliding anotherEntity = iterator.next();
 
 			if (entity.collidesWith(anotherEntity) && entity != anotherEntity) {
-				return true;
+				return entity;
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 

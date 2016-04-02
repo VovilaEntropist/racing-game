@@ -5,10 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import model.listener.*;
+import utils.Consumer;
 import utils.Settings;
 import utils.Vector;
 
-public class Model implements Runnable {
+public class Model implements Consumer<Double> {
 
 	private ListenersList listeners;
 	private InputKeeper inputKeeper;
@@ -17,11 +18,10 @@ public class Model implements Runnable {
 	private GameEntity player;
 
 	private Score score;
-	private int hitPoint;
 
 	private RoadTraffic roadTraffic;
 	private Road road;
-	private Set<GameEntity> entities;
+	private GameEntityList entities;
 
 	private Settings settings;
 
@@ -46,17 +46,15 @@ public class Model implements Runnable {
 		final int roadHeight = settings.getInt("road.height");
 		final int playerBoundsHeight = settings.getInt("player-bounds.height");
 
+		entities = new GameEntityList();
 		collisionManager = new CollisionManager();
-		entities = new HashSet<GameEntity>();
 		road = new Road(new ObjectData(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
 				settings.getInt("road.lane-count"), listeners);
 		roadTraffic = new RoadTraffic(road, entities, collisionManager, listeners);
-		player = new PlayerCar(new ObjectData(new Point(125, 400), new Dimension(50, 100)), listeners);
+		player = new PlayerCar(new ObjectData(new Point(125, 400), new Dimension(50, 100)), collisionManager, listeners);
+		collisionManager.add(player);
 		playerBounds = new Rectangle(0, roadHeight - playerBoundsHeight, roadWidth, playerBoundsHeight);
 		score = new Score();
-		hitPoint = settings.getInt("player.starting-lives");
-
-		collisionManager.add(player);
 	}
 
 	public void start() {
@@ -64,17 +62,27 @@ public class Model implements Runnable {
 		gameloop.start();
 	}
 
+	public void addListener(Listener listener) {
+		this.listeners.add(listener);
+	}
+
+	public void addGameEntityPrivateListener(GameEntity gameEntity, Listener listener) {
+		gameEntity.addPrivateListener(listener);
+	}
+
 	@Override
-	public void run() {
+	public void run(Double deltaTime) {
 		roadTraffic.generate();
-		roadTraffic.moveAll(GameLoop.BOUND_TIME);
-		roadTraffic.remove();
+//		roadTraffic.moveAll(deltaTime);
+//		roadTraffic.checkCollisionAll();
+//		roadTraffic.remove();
 
-		if (collisionManager.checkCollision(player)) {
-			hitPoint--;
+//		System.out.println(Thread.activeCount());
+
+		Colliding colliding = player.collides();
+		if (colliding != null) {
+			player.respondToCollision(colliding);
 		}
-
-		listeners.notify(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
 
 		Vector directionVector = new Vector();
 
@@ -99,13 +107,5 @@ public class Model implements Runnable {
 
 		score.increase(settings.getInt("score.increment-per-time"));
 		listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE, new Integer(score.getPoints())));
-	}
-
-	public void addListener(Listener listener) {
-		this.listeners.add(listener);
-	}
-
-	public void addGameEntityPrivateListener(GameEntity gameEntity, Listener listener) {
-		gameEntity.addPrivateListener(listener);
 	}
 }

@@ -10,14 +10,14 @@ import java.util.List;
 
 public class RoadTraffic {
 	private Road road;
-	private Set<GameEntity> entities;
+	private GameEntityList entities;
 	private ListenersList listeners;
 	private CollisionManager collisionManager;
 
 	private int generationInterval;
 	private List<Integer> availableLanes = new ArrayList<Integer>();
 
-	public RoadTraffic(Road road, Set<GameEntity> entities, CollisionManager collisionManager, ListenersList listeners) {
+	public RoadTraffic(Road road, GameEntityList entities, CollisionManager collisionManager, ListenersList listeners) {
 		this.road = road;
 		this.entities = entities;
 		this.collisionManager = collisionManager;
@@ -29,7 +29,7 @@ public class RoadTraffic {
 	private int countLastGenerationY() {
 		int lastGenerationY = 0;
 		try {
-			lastGenerationY = Collections.min(entities, new Comparator<GameEntity>() {
+			lastGenerationY = Collections.min(entities.getSet(), new Comparator<GameEntity>() {
 				@Override
 				public int compare(GameEntity o1, GameEntity o2) {
 					return o1.getObjectData().getRectangle().y -
@@ -82,7 +82,8 @@ public class RoadTraffic {
 
 				GameEntity entity = new Car(new ObjectData(new Rectangle(lane * roadLaneWidth +
 						(roadLaneWidth - carWidth) / 2, -carHeight - offset, carWidth, carHeight),
-						direction), listeners);
+						direction), collisionManager, listeners);
+				collisionManager.add(entity);
 
 				Vector vel = new Vector(0, velocityModifier * (random.nextInt(settings.getInt("car.max-velocity")
 						- settings.getInt("car.min-velocity")) + settings.getInt("car.min-velocity"))
@@ -90,7 +91,8 @@ public class RoadTraffic {
 
 				entity.setVelocity(vel);
 				entities.add(entity);
-				collisionManager.add(entity);
+
+				new GameLoop(new GameEntityHandler(entity, listeners, collisionManager)).start();
 			}
 
 			int maxGenerationInterval = settings.getInt("road-traffic.max-generation-interval");
@@ -101,12 +103,13 @@ public class RoadTraffic {
 	}
 
 	public void remove() {
-		Iterator<GameEntity> iterator = entities.iterator();
+		Iterator<GameEntity> iterator = entities.getSet().iterator();
 		while(iterator.hasNext()) {
 			GameEntity entity = iterator.next();
 
 			if (disappeared(entity)) {
 				entity.disappear();
+				collisionManager.remove(entity);
 				iterator.remove();
 			}
 		}
@@ -118,8 +121,23 @@ public class RoadTraffic {
 	}
 
 	public void moveAll(double time) {
-		for (GameEntity entity : entities) {
+		for (GameEntity entity : entities.getSet()) {
 			entity.move(time);
+		}
+	}
+
+	public void checkCollisionAll() {
+		Iterator<GameEntity> iterator = entities.getSet().iterator();
+		while(iterator.hasNext()) {
+			GameEntity entity = iterator.next();
+
+			Colliding colliding = entity.collides();
+			if (colliding != null) {
+				entity.respondToCollision(colliding);
+				entity.disappear();
+				collisionManager.remove(entity);
+				iterator.remove();
+			}
 		}
 	}
 }
