@@ -5,12 +5,12 @@ import model.listener.SenderType;
 
 class Car extends GameEntity {
 
-	public Car(ObjectData objectData, CollisionBody collisionBody, CollisionManager collisionManager, ListenersList listeners) {
-		super(objectData, collisionBody, collisionManager, listeners);
+	public Car(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+		super(objectData, collisionBody, listeners, collisionManager);
 	}
 
-	public Car(ObjectData objectData, CollisionManager collisionManager, ListenersList listeners) {
-		this(objectData, new CollisionBody(objectData.getRectangle()), collisionManager, listeners);
+	public Car(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
 	}
 
 	@Override
@@ -21,7 +21,10 @@ class Car extends GameEntity {
 
 	@Override
 	protected void doCollisionResponse(Colliding colliding) {
-
+		if (colliding != null) {
+			collisionManager.remove(this);
+			disappear();
+		}
 	}
 
 	@Override

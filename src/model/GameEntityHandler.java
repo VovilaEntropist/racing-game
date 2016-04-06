@@ -6,17 +6,17 @@ import utils.Consumer;
 public class GameEntityHandler implements Consumer<Double> {
 
 	private GameEntity gameEntity;
-	private ListenersList listenersList;
-	private CollisionManager collisionManager;
 
-	public GameEntityHandler(GameEntity gameEntity, ListenersList listenersList, CollisionManager collisionManager) {
+	public GameEntityHandler(GameEntity gameEntity) {
 		this.gameEntity = gameEntity;
-		this.listenersList = listenersList;
-		this.collisionManager = collisionManager;
 	}
 
 	@Override
 	public void run(Double deltaTime) {
 		gameEntity.move(deltaTime);
+		gameEntity.checkCollision();
+		if (gameEntity.isDisappeared()) {
+			Thread.currentThread().stop();
+		}
 	}
 }

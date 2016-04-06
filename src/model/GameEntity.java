@@ -11,21 +11,26 @@ public abstract class GameEntity extends Colliding {
 	private ListenersList listeners;
 	private ListenersList privateListeners = new ListenersList();
 
-	private CollisionManager collisionManager;
+	protected CollisionManager collisionManager;
 
-	public GameEntity(ObjectData objectData, CollisionBody collisionBody, CollisionManager collisionManager, ListenersList listeners) {
+	private boolean disappeared;
+
+	public GameEntity(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
 		super(collisionBody);
 		this.listeners = listeners;
 		this.collisionManager = collisionManager;
 		setObjectData(objectData);
+
+		disappeared = false;
 	}
 
-	public GameEntity(ObjectData objectData, CollisionManager collisionManager, ListenersList listeners) {
-		this(objectData, new CollisionBody(objectData.getRectangle()), collisionManager, listeners);
+	public GameEntity(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
 	}
 
 	public ObjectData getObjectData() {
 		return objectData;
+
 	}
 
 	public void setObjectData(ObjectData objectData) {
@@ -71,10 +76,15 @@ public abstract class GameEntity extends Colliding {
 	}
 
 	public void disappear() {
+		disappeared = true;
 		notifyListeners(new EventData(getSenderType(), EventType.DISAPPEARANCE));
 	}
 
-	public Colliding collides() {
+	public boolean isDisappeared() {
+		return disappeared;
+	}
+
+	public boolean checkCollision() {
 		return collisionManager.checkCollisionFor(this);
 	}
 

@@ -21,7 +21,7 @@ public class Model implements Consumer<Double> {
 
 	private RoadTraffic roadTraffic;
 	private Road road;
-	//private GameEntityList entities;
+	private Colliding border;
 
 	private Settings settings;
 
@@ -45,14 +45,19 @@ public class Model implements Consumer<Double> {
 		final int roadWidth = settings.getInt("road.width");
 		final int roadHeight = settings.getInt("road.height");
 		final int playerBoundsHeight = settings.getInt("player-bounds.height");
+		final int playerInitialX = settings.getInt("player.initial-x");
+		final int playerInitialY = settings.getInt("player.initial-y");
+		final int playerWidth = settings.getInt("player.width");
+		final int playerHeight = settings.getInt("player.height");
 
-		//entities = new GameEntityList();
+
 		collisionManager = new CollisionManager();
 		road = new Road(new ObjectData(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
 				settings.getInt("road.lane-count"), listeners);
-		//roadTraffic = new RoadTraffic(road, entities, collisionManager, listeners);
+		border = new Border(new CollisionBody(new Rectangle(0, roadHeight, roadWidth, 10)));
+		collisionManager.add(border);
 		roadTraffic = new RoadTraffic(road, collisionManager, listeners);
-		player = new PlayerCar(new ObjectData(new Point(125, 400), new Dimension(50, 100)), collisionManager, listeners);
+		player = new PlayerCar(new ObjectData(new Point(playerInitialX, playerInitialY), new Dimension(playerWidth, playerHeight)), listeners, collisionManager);
 		collisionManager.add(player);
 		playerBounds = new Rectangle(0, roadHeight - playerBoundsHeight, roadWidth, playerBoundsHeight);
 		score = new Score();
@@ -78,12 +83,9 @@ public class Model implements Consumer<Double> {
 //		roadTraffic.checkCollisionAll();
 //		roadTraffic.remove();
 
-//		System.out.println(Thread.activeCount());
+		System.out.println(Thread.activeCount());
 
-		Colliding colliding = player.collides();
-		if (colliding != null) {
-			player.respondToCollision(colliding);
-		}
+		collisionManager.checkCollisionFor(player);
 
 		Vector directionVector = new Vector();
 

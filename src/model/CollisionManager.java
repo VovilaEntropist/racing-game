@@ -20,19 +20,18 @@ public class CollisionManager {
 		return entities.remove(o);
 	}
 
-	public Colliding checkCollisionFor(Colliding entity) {
+	public synchronized boolean checkCollisionFor(Colliding entity) {
 		Iterator<Colliding> iterator = entities.iterator();
 		while(iterator.hasNext()) {
 			Colliding anotherEntity = iterator.next();
 
 			if (entity.collidesWith(anotherEntity) && entity != anotherEntity) {
-				return entity;
+				entity.respondToCollision(anotherEntity);
+				anotherEntity.respondToCollision(entity);
+				return true;
 			}
 		}
 
-		return null;
+		return false;
 	}
-
-
-
 }

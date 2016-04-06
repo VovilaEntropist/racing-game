@@ -10,22 +10,23 @@ public class PlayerCar extends Car {
 
 	private int hitPoint;
 
-	public PlayerCar(ObjectData objectData, CollisionBody collisionBody, CollisionManager collisionManager, ListenersList listeners) {
-		super(objectData, collisionBody, collisionManager, listeners);
+	public PlayerCar(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+		super(objectData, collisionBody, listeners, collisionManager);
 		hitPoint = Settings.getInstance().getInt("player.starting-lives");
+		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
 	}
 
-	public PlayerCar(ObjectData objectData, CollisionManager collisionManager, ListenersList listeners) {
-		this(objectData, new CollisionBody(objectData.getRectangle()), collisionManager, listeners);
+	public PlayerCar(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
 	}
 
 	@Override
 	protected void doCollisionResponse(Colliding colliding) {
-		if (colliding == null) {
-			return;
+		if (colliding instanceof Car) {
+			hitPoint--;
+		} else if (colliding instanceof Life) {
+			hitPoint++;
 		}
-
-		hitPoint--;
 		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
 	}
 

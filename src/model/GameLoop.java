@@ -36,6 +36,8 @@ public class GameLoop extends Thread {
 				}
 			}
 
+
+
 			prevTime = curTime;
 		}
 
