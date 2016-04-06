@@ -33,8 +33,6 @@ public class View extends JFrame implements Listener {
 
 	private JPanel roadPanel;
 
-	//private JPanel playerPanel;
-
 	public View(final Controller controller) {
 		this.controller = controller;
 

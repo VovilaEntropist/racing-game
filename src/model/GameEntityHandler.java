@@ -5,7 +5,7 @@ import utils.Consumer;
 
 public class GameEntityHandler implements Consumer<Double> {
 
-	private GameEntity gameEntity;
+	protected GameEntity gameEntity;
 
 	public GameEntityHandler(GameEntity gameEntity) {
 		this.gameEntity = gameEntity;

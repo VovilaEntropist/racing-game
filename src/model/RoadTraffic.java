@@ -95,43 +95,4 @@ public class RoadTraffic {
 			generationInterval = random.nextInt(maxGenerationInterval - minGenerationInterval) + minGenerationInterval;
 		}
 	}
-
-//	public void remove() {
-//		Iterator<GameEntity> iterator = entities.getSet().iterator();
-//		while(iterator.hasNext()) {
-//			GameEntity entity = iterator.next();
-//
-//			if (disappeared(entity)) {
-//				entity.disappear();
-//				collisionManager.remove(entity);
-//				iterator.remove();
-//			}
-//		}
-//	}
-
-//	private boolean disappeared(GameEntity entity) {
-//		return entity.getObjectData().getRectangle().y >
-//				road.getBody().getRectangle().height;
-//	}
-
-//	public void moveAll(double time) {
-//		for (GameEntity entity : entities.getSet()) {
-//			entity.move(time);
-//		}
-//	}
-
-//	public void checkCollisionAll() {
-//		Iterator<GameEntity> iterator = entities.getSet().iterator();
-//		while(iterator.hasNext()) {
-//			GameEntity entity = iterator.next();
-//
-//			Colliding colliding = entity.collides();
-//			if (colliding != null) {
-//				entity.respondToCollision(colliding);
-//				entity.disappear();
-//				collisionManager.remove(entity);
-//				iterator.remove();
-//			}
-//		}
-//	}
 }
