@@ -1,11 +1,9 @@
 package controller;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
-import model.GameEntity;
-import model.InputKeeper;
-import model.KeyType;
+import model.entity.GameEntity;
+import model.input.KeyType;
 import model.Model;
 import model.listener.Listener;
 

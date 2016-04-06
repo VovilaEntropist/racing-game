@@ -1,5 +1,10 @@
 package model;
 
+import model.collision.CollisionManager;
+import model.entity.Car;
+import model.entity.GameEntity;
+import model.entity.Life;
+import model.handler.GameEntityHandler;
 import model.listener.ListenersList;
 import utils.Settings;
 import utils.Vector;
@@ -88,7 +93,7 @@ public class RoadTraffic {
 
 				collisionManager.add(entity);
 
-				new GameLoop(new GameEntityHandler(entity), gameState).start();
+				new GameLoop(new GameEntityHandler(entity, gameState), gameState).start();
 			}
 
 			int maxGenerationInterval = settings.getInt("road-traffic.max-generation-interval");

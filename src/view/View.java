@@ -7,7 +7,7 @@ import java.io.File;
 
 import javax.swing.*;
 
-import model.GameEntity;
+import model.entity.GameEntity;
 import model.Road;
 import model.listener.EventData;
 import model.listener.EventType;

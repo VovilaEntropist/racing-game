@@ -1,4 +1,4 @@
-package model;
+package model.collision;
 
 public abstract class Colliding {
 

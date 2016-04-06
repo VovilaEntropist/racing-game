@@ -1,4 +1,4 @@
-package model;
+package model.collision;
 
 import java.awt.*;
 

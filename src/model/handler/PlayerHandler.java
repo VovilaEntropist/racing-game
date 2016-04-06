@@ -1,5 +1,10 @@
-package model;
+package model.handler;
 
+import model.GameLoop;
+import model.GameState;
+import model.entity.GameEntity;
+import model.input.InputKeeper;
+import model.input.KeyType;
 import utils.Settings;
 import utils.Vector;
 
@@ -10,15 +15,12 @@ public class PlayerHandler extends GameEntityHandler {
 	private Rectangle playerBounds;
 	private InputKeeper inputKeeper;
 
-	private GameState gameState;
-
 	private Settings settings;
 
 	public PlayerHandler(GameEntity gameEntity, Rectangle playerBounds, InputKeeper inputKeeper, GameState gameState) {
-		super(gameEntity);
+		super(gameEntity, gameState);
 		this.playerBounds = playerBounds;
 		this.inputKeeper = inputKeeper;
-		this.gameState = gameState;
 
 		settings = Settings.getInstance();
 	}

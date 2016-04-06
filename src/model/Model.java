@@ -1,13 +1,16 @@
 package model;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
 
+import model.collision.Colliding;
+import model.collision.CollisionBody;
+import model.collision.CollisionManager;
+import model.entity.GameEntity;
+import model.entity.PlayerCar;
+import model.handler.PlayerHandler;
+import model.input.InputKeeper;
 import model.listener.*;
-import utils.Consumer;
 import utils.Settings;
-import utils.Vector;
 
 public class Model {
 
@@ -68,7 +71,6 @@ public class Model {
 		while(!gameState.isGameOver()) {
 			roadTraffic.generate();
 
-			gameState.getScore().increase(settings.getInt("score.increment-per-time"));
 			listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE,
 					new Integer(gameState.getScore().getPoints())));
 
@@ -82,7 +84,6 @@ public class Model {
 		if (gameState.isGameOver()) {
 			listeners.notify(new EventData(SenderType.GAME, EventType.GAME_OVER, new Integer(gameState.getScore().getPoints())));
 		}
-		gameState.getScore().increase(settings.getInt("score.increment-per-time"));
 		listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE,
 				new Integer(gameState.getScore().getPoints())));
 

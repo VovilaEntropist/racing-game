@@ -1,5 +1,7 @@
 package model;
 
+import model.entity.GameEntity;
+
 import java.util.HashSet;
 import java.util.Set;
 

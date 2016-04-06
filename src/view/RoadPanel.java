@@ -35,9 +35,14 @@ public class RoadPanel extends JPanel {
 			final int x = i * roadLaneWidth + roadLaneWidth;
 
 			g2d.setColor(Color.WHITE);
-			g2d.setStroke(new BasicStroke(5, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER,
-					10.0f, new float[] {10.0f}, 0.0f));
-			g2d.drawLine(x, 0, x, getHeight());
+			g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+			if ((laneCount - 1) / 2 == i) {
+				g2d.drawLine(x-3, 0, x-3, getHeight());
+				g2d.drawLine(x+3, 0, x+3, getHeight());
+			} else {
+				g2d.drawLine(x, 0, x, getHeight());
+			}
+
 		}
 	}
 }

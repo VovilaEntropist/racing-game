@@ -1,5 +1,9 @@
-package model;
+package model.entity;
 
+import model.ObjectData;
+import model.collision.Colliding;
+import model.collision.CollisionBody;
+import model.collision.CollisionManager;
 import model.listener.EventData;
 import model.listener.EventType;
 import model.listener.ListenersList;

@@ -1,9 +1,13 @@
-package model;
+package model.entity;
 
+import model.ObjectData;
+import model.collision.Colliding;
+import model.collision.CollisionBody;
+import model.collision.CollisionManager;
 import model.listener.ListenersList;
 import model.listener.SenderType;
 
-class Car extends GameEntity {
+public class Car extends GameEntity {
 
 	public Car(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
 		super(objectData, collisionBody, listeners, collisionManager);

@@ -1,5 +1,8 @@
 package model;
 
+import model.collision.Colliding;
+import model.collision.CollisionBody;
+
 public class Border extends Colliding {
 
 	public Border(CollisionBody collisionBody) {
