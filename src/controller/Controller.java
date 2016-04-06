@@ -42,9 +42,14 @@ public class Controller {
 				return KeyType.RIGHT;
 			case KeyEvent.VK_LEFT:
 				return KeyType.LEFT;
+			case KeyEvent.VK_SPACE:
+				return KeyType.SPACE;
 		}
 
 		return KeyType.UNKNOWN;
 	}
 	
+	public void startNewGame() {
+		model.start();
+	}
 }

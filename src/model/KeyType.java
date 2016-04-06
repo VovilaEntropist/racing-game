@@ -1,6 +1,6 @@
 package model;
 
 public enum KeyType {
-	UP, DOWN, RIGHT, LEFT, UNKNOWN;
+	UP, DOWN, RIGHT, LEFT, UNKNOWN, SPACE;
 }
 

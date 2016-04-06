@@ -10,12 +10,15 @@ public class PlayerHandler extends GameEntityHandler {
 	private Rectangle playerBounds;
 	private InputKeeper inputKeeper;
 
+	private GameState gameState;
+
 	private Settings settings;
 
-	public PlayerHandler(GameEntity gameEntity, Rectangle playerBounds, InputKeeper inputKeeper) {
+	public PlayerHandler(GameEntity gameEntity, Rectangle playerBounds, InputKeeper inputKeeper, GameState gameState) {
 		super(gameEntity);
 		this.playerBounds = playerBounds;
 		this.inputKeeper = inputKeeper;
+		this.gameState = gameState;
 
 		settings = Settings.getInstance();
 	}
@@ -44,5 +47,9 @@ public class PlayerHandler extends GameEntityHandler {
 		gameEntity.getVelocity().setPolar(settings.getInt("player.velocity"), directionVector.getAngle());
 
 		gameEntity.move(GameLoop.BOUND_TIME);
+
+		if (gameEntity.isDisappeared()) {
+			gameState.setGameOver(true);
+		}
 	}
 }

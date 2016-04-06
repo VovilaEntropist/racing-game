@@ -19,4 +19,9 @@ public class Score {
 	public void increase(int value) {
 		this.points += value;
 	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(points);
+	}
 }

@@ -45,7 +45,6 @@ public class View extends JFrame implements Listener {
 		scorePanel.add(new JLabel("lives: "));
 		scorePanel.add(hpLabel);
 
-
 		this.setResizable(false);
 		this.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		this.setLayout(new BorderLayout());
@@ -103,17 +102,21 @@ public class View extends JFrame implements Listener {
 
 			if (roadPanel != null) {
 				roadPanel.removeAll();
+			} else {
+				roadPanel = new RoadPanel(road);
+				gameField.add(roadPanel);
 			}
-
-			roadPanel = new RoadPanel(road);
-
-			gameField.add(roadPanel);
 		} else if (senderType == SenderType.SCORE && eventData.getEventType() == EventType.UPDATE) {
 			Integer score = (Integer) eventData.getObject();
 			scoreLabel.setText(String.valueOf(score));
 		} else if (senderType == SenderType.HP && eventData.getEventType() == EventType.UPDATE) {
 			Integer hp = (Integer) eventData.getObject();
 			hpLabel.setText(String.valueOf(hp));
+		} else if (senderType == SenderType.GAME && eventData.getEventType() == EventType.GAME_OVER) {
+			Integer score = (Integer) eventData.getObject();
+			roadPanel.removeAll();
+			JPanel gameOverPanel = new GameOverPanel(controller, score);
+			roadPanel.add(gameOverPanel);
 		}
 		repaint();
 	}

@@ -22,10 +22,14 @@ public class PlayerCar extends Car {
 
 	@Override
 	protected void doCollisionResponse(Colliding colliding) {
-		if (colliding instanceof Car) {
-			hitPoint--;
-		} else if (colliding instanceof Life) {
+		if (colliding instanceof Life) {
 			hitPoint++;
+		} else if (colliding instanceof Car) {
+			hitPoint--;
+		}
+
+		if (hitPoint < 0) {
+			disappear();
 		}
 		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
 	}

@@ -12,16 +12,18 @@ public class RoadTraffic {
 	private Road road;
 	private ListenersList listeners;
 	private CollisionManager collisionManager;
+	private GameState gameState;
 
 	private int generationInterval;
 	private List<Integer> availableLanes = new ArrayList<Integer>();
 
 	private long lastGenerationTime;
 
-	public RoadTraffic(Road road, CollisionManager collisionManager, ListenersList listeners) {
+	public RoadTraffic(Road road, CollisionManager collisionManager, ListenersList listeners, GameState gameState) {
 		this.road = road;
 		this.collisionManager = collisionManager;
 		this.listeners = listeners;
+		this.gameState = gameState;
 
 		lastGenerationTime = System.currentTimeMillis();
 		generationInterval = 0;
@@ -86,7 +88,7 @@ public class RoadTraffic {
 
 				collisionManager.add(entity);
 
-				new GameLoop(new GameEntityHandler(entity)).start();
+				new GameLoop(new GameEntityHandler(entity), gameState).start();
 			}
 
 			int maxGenerationInterval = settings.getInt("road-traffic.max-generation-interval");
