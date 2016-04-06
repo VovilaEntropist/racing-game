@@ -1,13 +1,11 @@
 package view;
 
 import model.Direction;
-import model.GameEntity;
-import model.PhysicalBody;
+import model.ObjectData;
 import model.listener.EventData;
 import model.listener.EventType;
 import model.listener.Listener;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -18,18 +16,18 @@ public class GameEntityPanel extends JPanel implements Listener {
 	protected BufferedImage image;
 	protected Direction direction;
 
-	private GameEntityPanel(PhysicalBody body) {
+	private GameEntityPanel(ObjectData body) {
 		super();
 		initialize(body);
 	}
 
-	public GameEntityPanel(PhysicalBody body, BufferedImage bufImage) {
+	public GameEntityPanel(ObjectData body, BufferedImage bufImage) {
 		this(body);
 		this.image = bufImage;
 	}
 
 	@Deprecated
-	public GameEntityPanel(PhysicalBody body, Image image) {
+	public GameEntityPanel(ObjectData body, Image image) {
 		this(body);
 		this.image = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D bGr = (Graphics2D) image.getGraphics();
@@ -37,7 +35,7 @@ public class GameEntityPanel extends JPanel implements Listener {
 		bGr.dispose();
 	}
 
-	private void initialize(PhysicalBody body) {
+	private void initialize(ObjectData body) {
 		this.setBackground(new Color(0, 0, 0, 0));
 		this.setBounds(body.getRectangle());
 		this.direction = body.getDirection();
@@ -63,7 +61,7 @@ public class GameEntityPanel extends JPanel implements Listener {
 	@Override
 	public void handleEvent(EventData eventData) {
 		if(eventData.getEventType() == EventType.MOVE) {
-			PhysicalBody body = (PhysicalBody) eventData.getObject();
+			ObjectData body = (ObjectData) eventData.getObject();
 			this.setLocation(body.getRectangle().getLocation());
 		} else if (eventData.getEventType() == EventType.DISAPPEARANCE) {
 			this.getParent().remove(this);

@@ -20,7 +20,7 @@ import utils.ImageRandom;
 
 @SuppressWarnings("serial")
 public class View extends JFrame implements Listener {
-	public static final int FRAME_WIDTH = 400;
+	public static final int FRAME_WIDTH = 450;
 	public static final int FRAME_HEIGHT = 550;
 
 	private final Controller controller;
@@ -39,7 +39,7 @@ public class View extends JFrame implements Listener {
 		this.controller = controller;
 
 		gameField.setBackground(new Color(48, 139, 4));
-		gameField.setLayout(new FlowLayout());
+		gameField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
 		scorePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		scorePanel.add(new JLabel("Score: "));
@@ -47,6 +47,8 @@ public class View extends JFrame implements Listener {
 		scorePanel.add(new JLabel("lives: "));
 		scorePanel.add(hpLabel);
 
+
+		this.setResizable(false);
 		this.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		this.setLayout(new BorderLayout());
 		this.add(scorePanel, BorderLayout.NORTH);
@@ -69,9 +71,11 @@ public class View extends JFrame implements Listener {
 		});
 
 		carImageRandom = new ImageRandom();
-		carImageRandom.add(ImageLoader.load(new File("src/resources/car1.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/car2.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/car3.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/Car.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/Mini_truck.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/Mini_van.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/taxi.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/Audi.png")));
 	}
 
 	@Override
@@ -81,17 +85,28 @@ public class View extends JFrame implements Listener {
 
 		if (senderType == SenderType.CAR && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getBody(), carImageRandom.getRandomImage());
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(), carImageRandom.getRandomImage());
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
 		} else if (senderType == SenderType.PLAYER && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getBody(),
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(),
 					ImageLoader.load(new File("src/resources/player.png")));
+			roadPanel.add(gameEntityPanel);
+			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+		} else if (senderType == SenderType.LIFE && eventType == EventType.INITIALIZE) {
+			GameEntity gameEntity = (GameEntity) eventData.getObject();
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(),
+					ImageLoader.load(new File("src/resources/Ambulance.png")));
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
 		} else if (senderType == SenderType.ROAD && eventType == EventType.INITIALIZE) {
 			Road road = (Road) eventData.getObject();
+
+			if (roadPanel != null) {
+				roadPanel.removeAll();
+			}
+
 			roadPanel = new RoadPanel(road);
 
 			gameField.add(roadPanel);

@@ -1,24 +1,30 @@
 package model;
 
-public class GameLoop {
+import utils.Consumer;
+
+public class GameLoop extends Thread {
 	public static final double BOUND_TIME = 0.0166;
 
-	private Runnable operations;
+	private Consumer<Double> operations;
 
-	private boolean notExit = true;
-
-	public GameLoop(Runnable operations) {
+	public GameLoop(Consumer<Double> operations) {
 		this.operations = operations;
 	}
 
-	public void start() {
+	public GameLoop(Consumer<Double> operations, String name) {
+		super(name);
+		this.operations = operations;
+	}
+
+	@Override
+	public void run() {
 		long prevTime = System.nanoTime();
 
-		while(notExit) {
+		while(true) {
 			long curTime = System.nanoTime();
 			double deltaTime = (curTime - prevTime) / 1e9;
 
-			operations.run();
+			operations.run(deltaTime);
 
 			double frameTime = (System.nanoTime() - curTime) / 1e9;
 
@@ -29,12 +35,13 @@ public class GameLoop {
 					e.printStackTrace();
 				}
 			}
+
+
+
+			prevTime = curTime;
 		}
 
 	}
 
-	public void stop() {
-		notExit = false;
-	}
 
 }

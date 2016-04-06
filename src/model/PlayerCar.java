@@ -1,12 +1,33 @@
 package model;
 
+import model.listener.EventData;
+import model.listener.EventType;
 import model.listener.ListenersList;
 import model.listener.SenderType;
+import utils.Settings;
 
 public class PlayerCar extends Car {
 
-	public PlayerCar(PhysicalBody body, ListenersList listeners) {
-		super(body, listeners);
+	private int hitPoint;
+
+	public PlayerCar(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+		super(objectData, collisionBody, listeners, collisionManager);
+		hitPoint = Settings.getInstance().getInt("player.starting-lives");
+		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
+	}
+
+	public PlayerCar(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
+	}
+
+	@Override
+	protected void doCollisionResponse(Colliding colliding) {
+		if (colliding instanceof Car) {
+			hitPoint--;
+		} else if (colliding instanceof Life) {
+			hitPoint++;
+		}
+		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
 	}
 
 	@Override

@@ -3,32 +3,19 @@ package model;
 import model.listener.ListenersList;
 import model.listener.SenderType;
 
-public class Life extends GameEntity {
+class Life extends Car {
 
-	public Life(PhysicalBody body, ListenersList listeners) {
-		super(body, listeners);
+	public Life(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+		super(objectData, collisionBody, listeners, collisionManager);
 	}
 
-	@Override
-	protected void doMovementAction(double time) {
-		body.getRectangle().x += (int) (getVelocity().x * time);
-		body.getRectangle().y += (int) (getVelocity().y * time);
+	public Life(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
 	}
 
 	@Override
 	public SenderType getSenderType() {
 		return SenderType.LIFE;
 	}
-
-	@Override
-	protected boolean doCheckCollision(GameEntity anotherGameEntity) {
-		return this.getBody().getRectangle().intersects(anotherGameEntity.getBody().getRectangle());
-	}
-
-	@Override
-	protected void doCollisionAction(GameEntity anotherGameEntity) {
-
-	}
-
 
 }

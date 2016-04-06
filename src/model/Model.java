@@ -5,10 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import model.listener.*;
+import utils.Consumer;
 import utils.Settings;
 import utils.Vector;
 
-public class Model implements Runnable {
+public class Model implements Consumer<Double> {
 
 	private ListenersList listeners;
 	private InputKeeper inputKeeper;
@@ -17,11 +18,10 @@ public class Model implements Runnable {
 	private GameEntity player;
 
 	private Score score;
-	private int hitPoint;
 
 	private RoadTraffic roadTraffic;
 	private Road road;
-	private Set<GameEntity> entities;
+	private Colliding border;
 
 	private Settings settings;
 
@@ -34,67 +34,73 @@ public class Model implements Runnable {
 		inputKeeper = new InputKeeper();
 		settings = Settings.getInstance();
 		gameloop = new GameLoop(this);
+
 	}
 
 	public InputKeeper getInputKeeper() {
 		return inputKeeper;
 	}
 
-	private void initialNewGame() {
+	private void initNewGame() {
 		final int roadWidth = settings.getInt("road.width");
 		final int roadHeight = settings.getInt("road.height");
 		final int playerBoundsHeight = settings.getInt("player-bounds.height");
+		final int playerInitialX = settings.getInt("player.initial-x");
+		final int playerInitialY = settings.getInt("player.initial-y");
+		final int playerWidth = settings.getInt("player.width");
+		final int playerHeight = settings.getInt("player.height");
 
-		entities = new HashSet<GameEntity>();
-		road = new Road(new PhysicalBody(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
+
+		collisionManager = new CollisionManager();
+		road = new Road(new ObjectData(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
 				settings.getInt("road.lane-count"), listeners);
-		roadTraffic = new RoadTraffic(road, entities, listeners);
-		player = new PlayerCar(new PhysicalBody(new Point(125, 400), new Dimension(50, 100)), listeners);
-
-		collisionManager = new CollisionManager(entities, player);
-
+		border = new Border(new CollisionBody(new Rectangle(0, roadHeight, roadWidth, 10)));
+		collisionManager.add(border);
+		roadTraffic = new RoadTraffic(road, collisionManager, listeners);
+		player = new PlayerCar(new ObjectData(new Point(playerInitialX, playerInitialY), new Dimension(playerWidth, playerHeight)), listeners, collisionManager);
+		collisionManager.add(player);
 		playerBounds = new Rectangle(0, roadHeight - playerBoundsHeight, roadWidth, playerBoundsHeight);
-
 		score = new Score();
-		hitPoint = settings.getInt("player.starting-lives");
 	}
 
 	public void start() {
-		initialNewGame();
+		initNewGame();
 		gameloop.start();
 	}
 
+	public void addListener(Listener listener) {
+		this.listeners.add(listener);
+	}
+
+	public void addGameEntityPrivateListener(GameEntity gameEntity, Listener listener) {
+		gameEntity.addPrivateListener(listener);
+	}
+
 	@Override
-	public void run() {
+	public void run(Double deltaTime) {
 		roadTraffic.generate();
-		roadTraffic.moveAll(GameLoop.BOUND_TIME);
-		roadTraffic.remove();
+//		roadTraffic.moveAll(deltaTime);
+//		roadTraffic.checkCollisionAll();
+//		roadTraffic.remove();
 
-		if (collisionManager.checkCollision()) {
-			hitPoint--;
-		}
+		System.out.println(Thread.activeCount());
 
-//		if (hitPoint < 0) {
-//			gameloop.stop();
-//			listeners.notify(new EventData(SenderType.GAME, EventType.GAME_OVER, new Integer(score.getPoints())));
-//		}
-
-		listeners.notify(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
+		collisionManager.checkCollisionFor(player);
 
 		Vector directionVector = new Vector();
 
-		if (inputKeeper.hasPressedKey(KeyType.UP) && player.getBody().getRectangle().y > playerBounds.y) {
+		if (inputKeeper.hasPressedKey(KeyType.UP) && player.getObjectData().getRectangle().y > playerBounds.y) {
 			directionVector.addPolar(1, Math.PI * 3/2);
 		}
 		if (inputKeeper.hasPressedKey(KeyType.DOWN) &&
-				player.getBody().getRectangle().y + player.getBody().getRectangle().height < playerBounds.y + playerBounds.height) {
+				player.getObjectData().getRectangle().y + player.getObjectData().getRectangle().height < playerBounds.y + playerBounds.height) {
 			directionVector.addPolar(1, Math.PI * 1/2);
 		}
 		if (inputKeeper.hasPressedKey(KeyType.RIGHT) &&
-				player.getBody().getRectangle().x + player.getBody().getRectangle().width < playerBounds.x + playerBounds.width) {
+				player.getObjectData().getRectangle().x + player.getObjectData().getRectangle().width < playerBounds.x + playerBounds.width) {
 			directionVector.addPolar(1, 0);
 		}
-		if (inputKeeper.hasPressedKey(KeyType.LEFT) && player.getBody().getRectangle().x > playerBounds.x) {
+		if (inputKeeper.hasPressedKey(KeyType.LEFT) && player.getObjectData().getRectangle().x > playerBounds.x) {
 			directionVector.addPolar(1, Math.PI);
 		}
 
@@ -104,13 +110,5 @@ public class Model implements Runnable {
 
 		score.increase(settings.getInt("score.increment-per-time"));
 		listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE, new Integer(score.getPoints())));
-	}
-
-	public void addListener(Listener listener) {
-		this.listeners.add(listener);
-	}
-
-	public void addGameEntityPrivateListener(GameEntity gameEntity, Listener listener) {
-		gameEntity.addPrivateListener(listener);
 	}
 }

@@ -3,26 +3,38 @@ package model;
 import model.listener.*;
 import utils.Vector;
 
-public abstract class GameEntity {
+public abstract class GameEntity extends Colliding {
 
-	protected PhysicalBody body;
+	protected ObjectData objectData;
 	protected Vector velocity = new Vector();
 
 	private ListenersList listeners;
 	private ListenersList privateListeners = new ListenersList();
 
-	public GameEntity(PhysicalBody body, ListenersList listeners) {
+	protected CollisionManager collisionManager;
+
+	private boolean disappeared;
+
+	public GameEntity(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+		super(collisionBody);
 		this.listeners = listeners;
+		this.collisionManager = collisionManager;
+		setObjectData(objectData);
 
-		setBody(body);
+		disappeared = false;
 	}
 
-	public PhysicalBody getBody() {
-		return body;
+	public GameEntity(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
+		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
 	}
 
-	public void setBody(PhysicalBody body) {
-		this.body = body;
+	public ObjectData getObjectData() {
+		return objectData;
+
+	}
+
+	public void setObjectData(ObjectData objectData) {
+		this.objectData = objectData;
 
 		notifyListeners(new EventData(getSenderType(), EventType.INITIALIZE, this));
 	}
@@ -44,12 +56,12 @@ public abstract class GameEntity {
 	public void move(double time) {
 		doMovementAction(time);
 
-		notifyListeners(new EventData(getSenderType(), EventType.MOVE, body));
+		notifyListeners(new EventData(getSenderType(), EventType.MOVE, objectData));
 	}
 
 	public abstract SenderType getSenderType();
 
-	private void notifyListeners(EventData eventData) {
+	protected void notifyListeners(EventData eventData) {
 		try {
 			listeners.notify(eventData);
 		} catch (NullPointerException e) {
@@ -64,20 +76,28 @@ public abstract class GameEntity {
 	}
 
 	public void disappear() {
+		disappeared = true;
 		notifyListeners(new EventData(getSenderType(), EventType.DISAPPEARANCE));
 	}
 
-	protected abstract boolean doCheckCollision(GameEntity anotherGameEntity);
-
-	protected abstract void doCollisionAction(GameEntity anotherGameEntity);
-
-	public boolean collide(GameEntity anotherGameEntity) {
-		boolean result = doCheckCollision(anotherGameEntity);
-
-		if (result) {
-			doCollisionAction(anotherGameEntity);
-		}
-
-		return result;
+	public boolean isDisappeared() {
+		return disappeared;
 	}
+
+	public boolean checkCollision() {
+		return collisionManager.checkCollisionFor(this);
+	}
+
+	@Override
+	public boolean collidesWith(Colliding other) {
+		return collisionBody.getRectangle().intersects(other.getCollisionBody().getRectangle());
+	}
+
+	@Override
+	public void respondToCollision(Colliding other) {
+		doCollisionResponse(other);
+	}
+
+	protected abstract void doCollisionResponse(Colliding colliding);
+
 }
