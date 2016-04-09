@@ -6,8 +6,9 @@ import model.collision.Colliding;
 import model.collision.CollisionBody;
 import model.collision.CollisionManager;
 import model.entity.GameEntity;
+import model.entity.PhysicalBody;
 import model.entity.PlayerCar;
-import model.handler.PlayerHandler;
+import model.thread.PlayerThread;
 import model.input.InputKeeper;
 import model.listener.*;
 import utils.Settings;
@@ -18,17 +19,18 @@ public class Model {
 	private InputKeeper inputKeeper;
 	private CollisionManager collisionManager;
 
+	private Score score;
 	private GameState gameState;
 
 	private RoadTraffic roadTraffic;
 	private Road road;
 	private Colliding border;
-	private Colliding endGameBorder;
 
 	private Settings settings;
 
 	public Model() {
 		gameState = new GameState();
+		score = new Score();
 		listeners = new ListenersList();
 		inputKeeper = new InputKeeper();
 		settings = Settings.getInstance();
@@ -47,22 +49,19 @@ public class Model {
 		final int playerWidth = settings.getInt("player.width");
 		final int playerHeight = settings.getInt("player.height");
 
-		gameState.setGameOver(false);
-
 		collisionManager = new CollisionManager();
-		road = new Road(new ObjectData(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
+		road = new Road(new PhysicalBody(new Point(0, 0), new Dimension(roadWidth, roadHeight)),
 				settings.getInt("road.lane-count"), listeners);
-		border = new Border(new CollisionBody(new Rectangle(0, roadHeight, roadWidth, 10)));
+		border = new Border(new CollisionBody(new Rectangle(0, roadHeight+150, roadWidth, 10)));
 		collisionManager.add(border);
-		endGameBorder = new Border(new CollisionBody(new Rectangle(0, 0, roadWidth, roadHeight)));
-		roadTraffic = new RoadTraffic(road, collisionManager, listeners, gameState);
+		roadTraffic = new RoadTraffic(road, collisionManager, listeners, gameState, score);
 
-		GameEntity player = new PlayerCar(new ObjectData(new Point(playerInitialX, playerInitialY),
+		GameEntity player = new PlayerCar(new PhysicalBody(new Point(playerInitialX, playerInitialY),
 				new Dimension(playerWidth, playerHeight)), listeners, collisionManager);
 		collisionManager.add(player);
 		Rectangle playerBounds = new Rectangle(0, roadHeight - playerBoundsHeight, roadWidth, playerBoundsHeight);
-		PlayerHandler playerHandler = new PlayerHandler(player, playerBounds, inputKeeper, gameState);
-		new GameLoop(playerHandler, gameState).start();
+		PlayerThread playerThread = new PlayerThread(player, gameState, playerBounds, inputKeeper);
+		playerThread.start();
 	}
 
 	public void start() {
@@ -71,8 +70,7 @@ public class Model {
 		while(!gameState.isGameOver()) {
 			roadTraffic.generate();
 
-			listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE,
-					new Integer(gameState.getScore().getPoints())));
+			listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE, score.getPoints()));
 
 			try {
 				Thread.sleep(15);
@@ -82,10 +80,9 @@ public class Model {
 		}
 
 		if (gameState.isGameOver()) {
-			listeners.notify(new EventData(SenderType.GAME, EventType.GAME_OVER, new Integer(gameState.getScore().getPoints())));
+			listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE, score.getPoints()));
+			listeners.notify(new EventData(SenderType.GAME, EventType.GAME_OVER, score.getPoints()));
 		}
-		listeners.notify(new EventData(SenderType.SCORE, EventType.UPDATE,
-				new Integer(gameState.getScore().getPoints())));
 
 	}
 

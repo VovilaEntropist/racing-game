@@ -1,6 +1,6 @@
 package model.entity;
 
-import model.ObjectData;
+import model.Health;
 import model.collision.Colliding;
 import model.collision.CollisionBody;
 import model.collision.CollisionManager;
@@ -12,30 +12,30 @@ import utils.Settings;
 
 public class PlayerCar extends Car {
 
-	private int hitPoint;
+	private Health health;
 
-	public PlayerCar(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
-		super(objectData, collisionBody, listeners, collisionManager);
-		hitPoint = Settings.getInstance().getInt("player.starting-lives");
-		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
+	public PlayerCar(PhysicalBody physicalBody, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+		super(physicalBody, collisionBody, listeners, collisionManager);
+		health = new Health(Settings.getInstance().getInt("player.starting-lives"));
+		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, health.getPoints()));
 	}
 
-	public PlayerCar(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
-		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
+	public PlayerCar(PhysicalBody physicalBody, ListenersList listeners, CollisionManager collisionManager) {
+		this(physicalBody, new CollisionBody(physicalBody.getRectangle()), listeners, collisionManager);
 	}
 
 	@Override
 	protected void doCollisionResponse(Colliding colliding) {
 		if (colliding instanceof Life) {
-			hitPoint++;
+			health.increase();
 		} else if (colliding instanceof Car) {
-			hitPoint--;
+			health.decrease();
 		}
 
-		if (hitPoint < 0) {
+		if (health.isZero()) {
 			disappear();
 		}
-		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, new Integer(hitPoint)));
+		notifyListeners(new EventData(SenderType.HP, EventType.UPDATE, health.getPoints()));
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package model;
+package model.entity;
 
 /**
  * Created by Vladimir on 10.03.2016.

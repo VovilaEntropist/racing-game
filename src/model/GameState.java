@@ -3,11 +3,9 @@ package model;
 public class GameState {
 
 	private boolean gameOver;
-	private Score score;
 
 	public GameState() {
 		this.gameOver = false;
-		this.score = new Score();
 	}
 
 	public boolean isGameOver() {
@@ -18,7 +16,4 @@ public class GameState {
 		this.gameOver = gameOver;
 	}
 
-	public Score getScore() {
-		return score;
-	}
 }

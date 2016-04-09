@@ -1,6 +1,5 @@
 package model.entity;
 
-import model.ObjectData;
 import model.collision.Colliding;
 import model.collision.CollisionBody;
 import model.collision.CollisionManager;
@@ -9,7 +8,7 @@ import utils.Vector;
 
 public abstract class GameEntity extends Colliding {
 
-	protected ObjectData objectData;
+	protected PhysicalBody physicalBody;
 	protected Vector velocity = new Vector();
 
 	private ListenersList listeners;
@@ -19,26 +18,26 @@ public abstract class GameEntity extends Colliding {
 
 	private boolean disappeared;
 
-	public GameEntity(ObjectData objectData, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
+	public GameEntity(PhysicalBody physicalBody, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
 		super(collisionBody);
 		this.listeners = listeners;
 		this.collisionManager = collisionManager;
-		setObjectData(objectData);
+		setPhysicalBody(physicalBody);
 
 		disappeared = false;
 	}
 
-	public GameEntity(ObjectData objectData, ListenersList listeners, CollisionManager collisionManager) {
-		this(objectData, new CollisionBody(objectData.getRectangle()), listeners, collisionManager);
+	public GameEntity(PhysicalBody physicalBody, ListenersList listeners, CollisionManager collisionManager) {
+		this(physicalBody, new CollisionBody(physicalBody.getRectangle()), listeners, collisionManager);
 	}
 
-	public ObjectData getObjectData() {
-		return objectData;
+	public PhysicalBody getPhysicalBody() {
+		return physicalBody;
 
 	}
 
-	public void setObjectData(ObjectData objectData) {
-		this.objectData = objectData;
+	public void setPhysicalBody(PhysicalBody physicalBody) {
+		this.physicalBody = physicalBody;
 
 		notifyListeners(new EventData(getSenderType(), EventType.INITIALIZE, this));
 	}
@@ -60,7 +59,7 @@ public abstract class GameEntity extends Colliding {
 	public void move(double time) {
 		doMovementAction(time);
 
-		notifyListeners(new EventData(getSenderType(), EventType.MOVE, objectData));
+		notifyListeners(new EventData(getSenderType(), EventType.MOVE, physicalBody));
 	}
 
 	public abstract SenderType getSenderType();

@@ -1,8 +1,8 @@
 package runner;
 
-		import model.Model;
-		import view.View;
-		import controller.Controller;
+import model.Model;
+import view.View;
+import controller.Controller;
 
 public class Runner {
 

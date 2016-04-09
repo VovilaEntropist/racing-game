@@ -17,12 +17,10 @@ import model.listener.SenderType;
 import controller.Controller;
 import utils.ImageLoader;
 import utils.ImageRandom;
+import utils.Settings;
 
 @SuppressWarnings("serial")
 public class View extends JFrame implements Listener {
-	public static final int FRAME_WIDTH = 450;
-	public static final int FRAME_HEIGHT = 550;
-
 	private final Controller controller;
 	private ImageRandom carImageRandom;
 
@@ -45,11 +43,14 @@ public class View extends JFrame implements Listener {
 		scorePanel.add(new JLabel("lives: "));
 		scorePanel.add(hpLabel);
 
+		Settings settings = Settings.getInstance();
+
 		this.setResizable(false);
-		this.setSize(FRAME_WIDTH, FRAME_HEIGHT);
+		this.setSize(settings.getInt("view.width"), settings.getInt("view.height"));
 		this.setLayout(new BorderLayout());
 		this.add(scorePanel, BorderLayout.NORTH);
 		this.add(gameField, BorderLayout.CENTER);
+		this.setTitle(settings.get("view.tittle"));
 		this.setVisible(true);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -68,11 +69,11 @@ public class View extends JFrame implements Listener {
 		});
 
 		carImageRandom = new ImageRandom();
-		carImageRandom.add(ImageLoader.load(new File("src/resources/Car.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/Mini_truck.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/Mini_van.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/taxi.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/Audi.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Car.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Mini_truck.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Mini_van.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/image/taxi.png")));
+		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Audi.png")));
 	}
 
 	@Override
@@ -82,19 +83,19 @@ public class View extends JFrame implements Listener {
 
 		if (senderType == SenderType.CAR && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(), carImageRandom.getRandomImage());
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(), carImageRandom.getRandomImage());
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
 		} else if (senderType == SenderType.PLAYER && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(),
-					ImageLoader.load(new File("src/resources/player.png")));
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(),
+					ImageLoader.load(new File("src/resources/image/player.png")));
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
 		} else if (senderType == SenderType.LIFE && eventType == EventType.INITIALIZE) {
 			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getObjectData(),
-					ImageLoader.load(new File("src/resources/Ambulance.png")));
+			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(),
+					ImageLoader.load(new File("src/resources/image/Ambulance.png")));
 			roadPanel.add(gameEntityPanel);
 			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
 		} else if (senderType == SenderType.ROAD && eventType == EventType.INITIALIZE) {
@@ -114,9 +115,7 @@ public class View extends JFrame implements Listener {
 			hpLabel.setText(String.valueOf(hp));
 		} else if (senderType == SenderType.GAME && eventData.getEventType() == EventType.GAME_OVER) {
 			Integer score = (Integer) eventData.getObject();
-			roadPanel.removeAll();
-			JPanel gameOverPanel = new GameOverPanel(controller, score);
-			roadPanel.add(gameOverPanel);
+			new GameOverPanel(score);
 		}
 		repaint();
 	}

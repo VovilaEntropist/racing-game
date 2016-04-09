@@ -1,10 +1,8 @@
 package model;
 
 import model.collision.CollisionManager;
-import model.entity.Car;
-import model.entity.GameEntity;
-import model.entity.Life;
-import model.handler.GameEntityHandler;
+import model.entity.*;
+import model.thread.CarThread;
 import model.listener.ListenersList;
 import utils.Settings;
 import utils.Vector;
@@ -14,6 +12,7 @@ import java.util.*;
 import java.util.List;
 
 public class RoadTraffic {
+	private Score score;
 	private Road road;
 	private ListenersList listeners;
 	private CollisionManager collisionManager;
@@ -24,11 +23,12 @@ public class RoadTraffic {
 
 	private long lastGenerationTime;
 
-	public RoadTraffic(Road road, CollisionManager collisionManager, ListenersList listeners, GameState gameState) {
+	public RoadTraffic(Road road, CollisionManager collisionManager, ListenersList listeners, GameState gameState, Score score) {
 		this.road = road;
 		this.collisionManager = collisionManager;
 		this.listeners = listeners;
 		this.gameState = gameState;
+		this.score = score;
 
 		lastGenerationTime = System.currentTimeMillis();
 		generationInterval = 0;
@@ -76,11 +76,11 @@ public class RoadTraffic {
 				GameEntity entity;
 				double lifeChance = settings.getDouble("life.chance");
 				if (random.nextDouble() < lifeChance) {
-					entity = new Life(new ObjectData(new Rectangle(lane * roadLaneWidth +
+					entity = new Life(new PhysicalBody(new Rectangle(lane * roadLaneWidth +
 							(roadLaneWidth - carWidth) / 2, -carHeight - offset, carWidth, carHeight),
 							direction), listeners, collisionManager);
 				} else {
-					entity = new Car(new ObjectData(new Rectangle(lane * roadLaneWidth +
+					entity = new Car(new PhysicalBody(new Rectangle(lane * roadLaneWidth +
 							(roadLaneWidth - carWidth) / 2, -carHeight - offset, carWidth, carHeight),
 							direction), listeners, collisionManager);
 				}
@@ -93,7 +93,7 @@ public class RoadTraffic {
 
 				collisionManager.add(entity);
 
-				new GameLoop(new GameEntityHandler(entity, gameState), gameState).start();
+				new CarThread(entity, gameState, score).start();
 			}
 
 			int maxGenerationInterval = settings.getInt("road-traffic.max-generation-interval");

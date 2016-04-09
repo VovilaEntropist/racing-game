@@ -2,5 +2,5 @@ package utils;
 
 public interface Consumer<T> {
 
-	void run(T arg);
+	void accept(T arg);
 }
