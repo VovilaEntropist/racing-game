@@ -1,5 +1,6 @@
 package model.collision;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -23,12 +24,15 @@ public class CollisionManager {
 	public synchronized boolean checkCollisionFor(Colliding entity) {
 		Iterator<Colliding> iterator = entities.iterator();
 		while(iterator.hasNext()) {
-			Colliding anotherEntity = iterator.next();
+			try {
+				Colliding anotherEntity = iterator.next();
 
-			if (entity.collidesWith(anotherEntity) && entity != anotherEntity) {
-				entity.respondToCollision(anotherEntity);
-				anotherEntity.respondToCollision(entity);
-				return true;
+				if (entity.collidesWith(anotherEntity) && entity != anotherEntity) {
+					entity.respondToCollision(anotherEntity);
+					anotherEntity.respondToCollision(entity);
+					return true;
+				}
+			} catch (ConcurrentModificationException e) {
 			}
 		}
 

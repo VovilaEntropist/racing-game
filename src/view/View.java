@@ -34,7 +34,29 @@ public class View extends JFrame implements Listener {
 	public View(final Controller controller) {
 		this.controller = controller;
 
-		gameField.setBackground(new Color(48, 139, 4));
+		controller.addListener(this);
+
+		init();
+	}
+
+	private void init() {
+		Settings settings = Settings.getInstance();
+		int frameWidth = settings.getInt("view.width");
+		int frameHeight = settings.getInt("view.height");
+		String gameFieldColor = settings.get("view.gamefield.color");
+		String frameTitle = settings.get("view.tittle");
+
+		this.setSize(frameWidth, frameHeight);
+		this.setTitle(frameTitle);
+		this.setResizable(false);
+		this.setLayout(new BorderLayout());
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		this.setVisible(true);
+
+		this.add(scorePanel, BorderLayout.NORTH);
+		this.add(gameField, BorderLayout.CENTER);
+
+		gameField.setBackground(Color.decode(gameFieldColor));
 		gameField.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
 
 		scorePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -43,37 +65,117 @@ public class View extends JFrame implements Listener {
 		scorePanel.add(new JLabel("lives: "));
 		scorePanel.add(hpLabel);
 
-		Settings settings = Settings.getInstance();
-
-		this.setResizable(false);
-		this.setSize(settings.getInt("view.width"), settings.getInt("view.height"));
-		this.setLayout(new BorderLayout());
-		this.add(scorePanel, BorderLayout.NORTH);
-		this.add(gameField, BorderLayout.CENTER);
-		this.setTitle(settings.get("view.tittle"));
-		this.setVisible(true);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-		controller.addListener(this);
-		
 		this.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				controller.keyPressed(e);
+				addPressedKey(e.getKeyCode());
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				controller.keyReleased(e);
+				addReleasedKey(e.getKeyCode());
 			}
 		});
 
+		loadImages();
+
+	}
+
+	public void addPressedKey(int keyCode) {
+		switch (keyCode) {
+			case KeyEvent.VK_UP:
+				controller.addActionUp();
+				break;
+			case KeyEvent.VK_DOWN:
+				controller.addActionDown();
+				break;
+			case KeyEvent.VK_RIGHT:
+				controller.addActionRight();
+				break;
+			case KeyEvent.VK_LEFT:
+				controller.addActionLeft();
+				break;
+		}
+	}
+
+	public void addReleasedKey(int keyCode) {
+		switch (keyCode) {
+			case KeyEvent.VK_UP:
+				controller.removeActionUp();
+				break;
+			case KeyEvent.VK_DOWN:
+				controller.removeActionDown();
+				break;
+			case KeyEvent.VK_RIGHT:
+				controller.removeActionRight();
+				break;
+			case KeyEvent.VK_LEFT:
+				controller.removeActionLeft();
+				break;
+		}
+	}
+
+	private void loadImages() {
+		Settings settings = Settings.getInstance();
 		carImageRandom = new ImageRandom();
-		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Car.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Mini_truck.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Mini_van.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/image/taxi.png")));
-		carImageRandom.add(ImageLoader.load(new File("src/resources/image/Audi.png")));
+		carImageRandom.add(ImageLoader.load(new File(settings.get("image.car1"))));
+		carImageRandom.add(ImageLoader.load(new File(settings.get("image.car2"))));
+		carImageRandom.add(ImageLoader.load(new File(settings.get("image.car3"))));
+		carImageRandom.add(ImageLoader.load(new File(settings.get("image.car4"))));
+		carImageRandom.add(ImageLoader.load(new File(settings.get("image.car5"))));
+	}
+
+	private void initCar(EventData eventData) {
+		GameEntity gameEntity = (GameEntity) eventData.getObject();
+		GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(), carImageRandom.getRandomImage());
+		roadPanel.add(gameEntityPanel);
+		controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+	}
+
+	private void initPlayer(EventData eventData) {
+		Settings settings = Settings.getInstance();
+
+		GameEntity gameEntity = (GameEntity) eventData.getObject();
+		GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(),
+				ImageLoader.load(new File(settings.get("image.player"))));
+		roadPanel.add(gameEntityPanel);
+		controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+	}
+
+	private void initLife(EventData eventData) {
+		Settings settings = Settings.getInstance();
+
+		GameEntity gameEntity = (GameEntity) eventData.getObject();
+		GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(),
+				ImageLoader.load(new File(settings.get("image.ambulance"))));
+		roadPanel.add(gameEntityPanel);
+		controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+	}
+
+	private void initRoad(EventData eventData) {
+		Road road = (Road) eventData.getObject();
+
+		if (roadPanel != null) {
+			roadPanel.removeAll();
+		} else {
+			roadPanel = new RoadPanel(road);
+			gameField.add(roadPanel);
+		}
+	}
+
+	private void updateScore(EventData eventData) {
+		Integer score = (Integer) eventData.getObject();
+		scoreLabel.setText(String.valueOf(score));
+	}
+
+	private void updateHP(EventData eventData) {
+		Integer hp = (Integer) eventData.getObject();
+		hpLabel.setText(String.valueOf(hp));
+	}
+
+	private void setGameOver(EventData eventData) {
+		Integer score = (Integer) eventData.getObject();
+		new GameOverPanel(score);
 	}
 
 	@Override
@@ -82,40 +184,19 @@ public class View extends JFrame implements Listener {
 		EventType eventType = eventData.getEventType();
 
 		if (senderType == SenderType.CAR && eventType == EventType.INITIALIZE) {
-			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(), carImageRandom.getRandomImage());
-			roadPanel.add(gameEntityPanel);
-			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+			initCar(eventData);
 		} else if (senderType == SenderType.PLAYER && eventType == EventType.INITIALIZE) {
-			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(),
-					ImageLoader.load(new File("src/resources/image/player.png")));
-			roadPanel.add(gameEntityPanel);
-			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+			initPlayer(eventData);
 		} else if (senderType == SenderType.LIFE && eventType == EventType.INITIALIZE) {
-			GameEntity gameEntity = (GameEntity) eventData.getObject();
-			GameEntityPanel gameEntityPanel = new GameEntityPanel(gameEntity.getPhysicalBody(),
-					ImageLoader.load(new File("src/resources/image/Ambulance.png")));
-			roadPanel.add(gameEntityPanel);
-			controller.addGameEntityPrivateListener(gameEntity, gameEntityPanel);
+			initLife(eventData);
 		} else if (senderType == SenderType.ROAD && eventType == EventType.INITIALIZE) {
-			Road road = (Road) eventData.getObject();
-
-			if (roadPanel != null) {
-				roadPanel.removeAll();
-			} else {
-				roadPanel = new RoadPanel(road);
-				gameField.add(roadPanel);
-			}
+			initRoad(eventData);
 		} else if (senderType == SenderType.SCORE && eventData.getEventType() == EventType.UPDATE) {
-			Integer score = (Integer) eventData.getObject();
-			scoreLabel.setText(String.valueOf(score));
+			updateScore(eventData);
 		} else if (senderType == SenderType.HP && eventData.getEventType() == EventType.UPDATE) {
-			Integer hp = (Integer) eventData.getObject();
-			hpLabel.setText(String.valueOf(hp));
+			updateHP(eventData);
 		} else if (senderType == SenderType.GAME && eventData.getEventType() == EventType.GAME_OVER) {
-			Integer score = (Integer) eventData.getObject();
-			new GameOverPanel(score);
+			setGameOver(eventData);
 		}
 		repaint();
 	}

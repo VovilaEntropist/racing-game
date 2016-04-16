@@ -28,10 +28,6 @@ public class Vector {
 	}
 
 	public double getAngle() {
-//		if (x == 0 && y == 0) {
-//			return 0;
-//		}
-
 		double result = Math.atan(y /x);
 		if (x < 0) {
 			result += Math.PI;

@@ -1,9 +1,6 @@
 package controller;
 
-import java.awt.event.KeyEvent;
-
 import model.entity.GameEntity;
-import model.input.KeyType;
 import model.Model;
 import model.listener.Listener;
 
@@ -22,32 +19,35 @@ public class Controller {
 		model.addGameEntityPrivateListener(gameEntity, listener);
 	}
 
-	public void keyPressed(KeyEvent event) {
-		model.getInputKeeper().pressKey(transformToKeyType(event.getKeyCode()));
+	public void addActionUp() {
+		model.addActionUp();
 	}
 
-	public void keyReleased(KeyEvent event) {
-		model.getInputKeeper().releaseKey(transformToKeyType(event.getKeyCode()));
+	public void addActionDown() {
+		model.addActionDown();
 	}
 
-	private KeyType transformToKeyType(int keyCode) {
-		switch (keyCode) {
-			case KeyEvent.VK_UP:
-				return KeyType.UP;
-			case KeyEvent.VK_DOWN:
-				return KeyType.DOWN;
-			case KeyEvent.VK_RIGHT:
-				return KeyType.RIGHT;
-			case KeyEvent.VK_LEFT:
-				return KeyType.LEFT;
-			case KeyEvent.VK_SPACE:
-				return KeyType.SPACE;
-		}
-
-		return KeyType.UNKNOWN;
+	public void addActionRight() {
+		model.addActionRight();
 	}
-	
-	public void startNewGame() {
-		model.start();
+
+	public void addActionLeft() {
+		model.addActionLeft();
+	}
+
+	public void removeActionUp() {
+		model.removeActionUp();
+	}
+
+	public void removeActionDown() {
+		model.removeActionDown();
+	}
+
+	public void removeActionRight() {
+		model.removeActionRight();
+	}
+
+	public void removeActionLeft() {
+		model.removeActionLeft();
 	}
 }

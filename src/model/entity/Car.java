@@ -8,6 +8,8 @@ import model.listener.SenderType;
 
 public class Car extends GameEntity {
 
+	protected boolean crashed;
+
 	public Car(PhysicalBody physicalBody, CollisionBody collisionBody, ListenersList listeners, CollisionManager collisionManager) {
 		super(physicalBody, collisionBody, listeners, collisionManager);
 	}
@@ -24,6 +26,10 @@ public class Car extends GameEntity {
 
 	@Override
 	protected void doCollisionResponse(Colliding colliding) {
+		if (colliding instanceof GameEntity) {
+			crash();
+		}
+
 		if (colliding != null) {
 			collisionManager.remove(this);
 			disappear();
@@ -35,4 +41,12 @@ public class Car extends GameEntity {
 		return SenderType.CAR;
 	}
 
+	public boolean isCrashed() {
+		return crashed;
+	}
+
+	public void crash() {
+		this.crashed = true;
+		disappear();
+	}
 }

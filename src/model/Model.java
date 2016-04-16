@@ -2,6 +2,8 @@ package model;
 
 import java.awt.*;
 
+import model.action.ActionKeeper;
+import model.action.ActionType;
 import model.collision.Colliding;
 import model.collision.CollisionBody;
 import model.collision.CollisionManager;
@@ -9,15 +11,15 @@ import model.entity.GameEntity;
 import model.entity.PhysicalBody;
 import model.entity.PlayerCar;
 import model.thread.PlayerThread;
-import model.input.InputKeeper;
 import model.listener.*;
 import utils.Settings;
 
 public class Model {
 
 	private ListenersList listeners;
-	private InputKeeper inputKeeper;
 	private CollisionManager collisionManager;
+
+	private ActionKeeper actionKeeper;
 
 	private Score score;
 	private GameState gameState;
@@ -32,12 +34,8 @@ public class Model {
 		gameState = new GameState();
 		score = new Score();
 		listeners = new ListenersList();
-		inputKeeper = new InputKeeper();
+		actionKeeper = new ActionKeeper();
 		settings = Settings.getInstance();
-	}
-
-	public InputKeeper getInputKeeper() {
-		return inputKeeper;
 	}
 
 	private void initNewGame() {
@@ -60,7 +58,7 @@ public class Model {
 				new Dimension(playerWidth, playerHeight)), listeners, collisionManager);
 		collisionManager.add(player);
 		Rectangle playerBounds = new Rectangle(0, roadHeight - playerBoundsHeight, roadWidth, playerBoundsHeight);
-		PlayerThread playerThread = new PlayerThread(player, gameState, playerBounds, inputKeeper);
+		PlayerThread playerThread = new PlayerThread(player, gameState, playerBounds, actionKeeper);
 		playerThread.start();
 	}
 
@@ -92,5 +90,37 @@ public class Model {
 
 	public void addGameEntityPrivateListener(GameEntity gameEntity, Listener listener) {
 		gameEntity.addPrivateListener(listener);
+	}
+
+	public void addActionUp() {
+		actionKeeper.addAction(ActionType.RIDING_UP);
+	}
+
+	public void addActionDown() {
+		actionKeeper.addAction(ActionType.RIDING_DOWN);
+	}
+
+	public void addActionRight() {
+		actionKeeper.addAction(ActionType.RIDING_RIGHT);
+	}
+
+	public void addActionLeft() {
+		actionKeeper.addAction(ActionType.RIDING_LEFT);
+	}
+
+	public void removeActionUp() {
+		actionKeeper.removeAction(ActionType.RIDING_UP);
+	}
+
+	public void removeActionDown() {
+		actionKeeper.removeAction(ActionType.RIDING_DOWN);
+	}
+
+	public void removeActionRight() {
+		actionKeeper.removeAction(ActionType.RIDING_RIGHT);
+	}
+
+	public void removeActionLeft() {
+		actionKeeper.removeAction(ActionType.RIDING_LEFT);
 	}
 }
